@@ -31,6 +31,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -887,6 +888,32 @@ func (kl *Kubelet) podAndContainersAreTerminal(pod *v1.Pod) (containersTerminal,
 	return
 }
 
+// check if terminated pod is kept for more than PodTerminatedStatePeriod.
+// Intend to keep the terminated pod around so that infra container is kept
+// alive while devices are release from it.
+func (kl *Kubelet) podIsInTerminatedStateBeyondGracePeriod(pod *v1.Pod) bool {
+	if !kl.podIsTerminated(pod) {
+               return false
+	}
+
+	var finishTime  time.Time
+	for _, status := range pod.Status.ContainerStatuses {
+		if finishTime.IsZero() {
+			finishTime = status.State.Terminated.FinishedAt.Time
+			continue
+		}
+		if finishTime.After(status.State.Terminated.FinishedAt.Time) {
+			continue
+		}
+		finishTime = status.State.Terminated.FinishedAt.Time
+	}
+	terminatedStateDuration := finishTime.Sub(time.Now())
+	if terminatedStateDuration.Seconds() > kl.kubeletConfiguration.PodTerminatedStatePeriod.Seconds() {
+		return true;
+	}
+	return false
+}
+
 // podIsTerminated returns true if the provided pod is in a terminal phase ("Failed", "Succeeded") or
 // has been deleted and has no running containers. This corresponds to when a pod must accept changes to
 // its pod spec (e.g. terminating containers allow grace period to be shortened).
@@ -984,7 +1011,7 @@ func notRunning(statuses []v1.ContainerStatus) bool {
 func (kl *Kubelet) filterOutTerminatedPods(pods []*v1.Pod) []*v1.Pod {
 	var filteredPods []*v1.Pod
 	for _, p := range pods {
-		if kl.podIsTerminated(p) {
+		if kl.podIsTerminated(p) && kl.podIsInTerminatedStateBeyondGracePeriod(p) {
 			continue
 		}
 		filteredPods = append(filteredPods, p)

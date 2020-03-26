@@ -755,6 +755,8 @@ type KubeletConfiguration struct {
 	// Default: []
 	// +optional
 	AllowedUnsafeSysctls []string `json:"allowedUnsafeSysctls,omitempty"`
+	// Duration for which the kubelet has to wait before killing pause container of a pod in Terminated state
+	PodTerminatedStatePeriod metav1.Duration `json:"podTerminatedStatePeriod,omitempty"`
 }
 
 type KubeletAuthorizationMode string

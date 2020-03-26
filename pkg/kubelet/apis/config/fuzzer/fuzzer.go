@@ -96,6 +96,7 @@ func Funcs(codecs runtimeserializer.CodecFactory) []interface{} {
 			obj.ContainerLogMaxSize = "10Mi"
 			obj.ConfigMapAndSecretChangeDetectionStrategy = "Watch"
 			obj.AllowedUnsafeSysctls = []string{}
+			obj.PodTerminatedStatePeriod = metav1.Duration{Duration: 4 * time.Second}
 		},
 	}
 }
