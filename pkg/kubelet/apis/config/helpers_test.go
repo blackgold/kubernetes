@@ -224,6 +224,6 @@ var (
 		"TypeMeta.APIVersion",
 		"TypeMeta.Kind",
 		"VolumeStatsAggPeriod.Duration",
-		"PodTerminatedStatePeriod.Duration",
+		"PodCleanUpGracePeriod.Duration",
 	)
 )

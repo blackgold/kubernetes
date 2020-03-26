@@ -2392,7 +2392,7 @@ func TestPodIsInTerminatedStateBeyondGracePeriod(t *testing.T) {
 	defer testKubelet.Cleanup()
 	kubelet := testKubelet.kubelet
 	// intentionally set duration high to avoid tests failing because of timing issues
-	kubelet.kubeletConfiguration.PodTerminatedStatePeriod = metav1.Duration { Duration: 100 * time.Second }
+	kubelet.kubeletConfiguration.PodCleanUpGracePeriod = metav1.Duration { Duration: 100 * time.Second }
 	tests := []struct {
 		pod    *v1.Pod
 		status bool
@@ -2464,7 +2464,7 @@ func TestPodIsInTerminatedStateBeyondGracePeriod(t *testing.T) {
 				},
 			},
 			true,
-			"All containers in the pod are in finished state for more than PodTerminatedStatePeriod seconds. Returning true",
+			"All containers in the pod are in finished state for more than PodCleanUpGracePeriod seconds. Returning true",
 		},
 	}
 	for _, test := range tests {

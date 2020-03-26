@@ -888,7 +888,7 @@ func (kl *Kubelet) podAndContainersAreTerminal(pod *v1.Pod) (containersTerminal,
 	return
 }
 
-// check if terminated pod is kept for more than PodTerminatedStatePeriod.
+// check if terminated pod is kept for more than PodCleanUpGracePeriod.
 // Intend to keep the terminated pod around so that infra container is kept
 // alive while devices are release from it.
 func (kl *Kubelet) podIsInTerminatedStateBeyondGracePeriod(pod *v1.Pod) bool {
@@ -907,8 +907,9 @@ func (kl *Kubelet) podIsInTerminatedStateBeyondGracePeriod(pod *v1.Pod) bool {
 		}
 		finishTime = status.State.Terminated.FinishedAt.Time
 	}
+
 	terminatedStateDuration := time.Now().Sub(finishTime)
-	if terminatedStateDuration.Seconds() > kl.kubeletConfiguration.PodTerminatedStatePeriod.Seconds() {
+	if terminatedStateDuration.Seconds() > kl.kubeletConfiguration.PodCleanUpGracePeriod.Seconds() {
 		return true;
 	}
 	return false

@@ -1147,7 +1147,7 @@ func TestFilterOutTerminatedPods(t *testing.T) {
 	defer testKubelet.Cleanup()
 	kubelet := testKubelet.kubelet
 	// intentionally set duration high to avoid tests failing because of timing issues
-	kubelet.kubeletConfiguration.PodTerminatedStatePeriod = metav1.Duration { Duration: 100 * time.Second }
+	kubelet.kubeletConfiguration.PodCleanUpGracePeriod = metav1.Duration { Duration: 100 * time.Second }
 	pods := newTestPods(5)
 	now := metav1.NewTime(time.Now())
 	// this pod terminated just now. This should filter out.
@@ -1159,7 +1159,7 @@ func TestFilterOutTerminatedPods(t *testing.T) {
 			},
 		}},
 	}
-	// this pod terminated 200 sec ago, more than PodTerminatedStatePeriod. This should not filter out.
+	// this pod terminated 200 sec ago, more than PodCleanUpGracePeriod. This should not filter out.
 	pods[1].Status.Phase = v1.PodSucceeded
 	pods[1].Status.ContainerStatuses = []v1.ContainerStatus{
 		{State: v1.ContainerState{
