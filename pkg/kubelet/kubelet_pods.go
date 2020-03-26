@@ -893,7 +893,7 @@ func (kl *Kubelet) podAndContainersAreTerminal(pod *v1.Pod) (containersTerminal,
 // alive while devices are release from it.
 func (kl *Kubelet) podIsInTerminatedStateBeyondGracePeriod(pod *v1.Pod) bool {
 	if !kl.podIsTerminated(pod) {
-               return false
+		return false
 	}
 
 	var finishTime  time.Time
@@ -907,7 +907,7 @@ func (kl *Kubelet) podIsInTerminatedStateBeyondGracePeriod(pod *v1.Pod) bool {
 		}
 		finishTime = status.State.Terminated.FinishedAt.Time
 	}
-	terminatedStateDuration := finishTime.Sub(time.Now())
+	terminatedStateDuration := time.Now().Sub(finishTime)
 	if terminatedStateDuration.Seconds() > kl.kubeletConfiguration.PodTerminatedStatePeriod.Seconds() {
 		return true;
 	}
